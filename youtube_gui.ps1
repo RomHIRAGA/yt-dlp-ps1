@@ -14,9 +14,9 @@ else {
     $scriptDir = Get-Location
 }
 
-# XAML 読み込み
+# XAML 読み込み GUI用 
 $xamlPath = Join-Path $scriptDir "Xaml/gui.xaml"
-[xml]$xaml = Get-Content $xamlPath
+[xml]$xaml = Get-Content $xamlPath -Raw -Encoding UTF8
 
 $reader = New-Object System.Xml.XmlNodeReader $xaml
 $window = [Windows.Markup.XamlReader]::Load($reader)
@@ -80,12 +80,12 @@ $DownloadButton.Add_Click({
     Write-Log "ダウンロード開始..."
     $ProgressBar.Value = 10
 
-    $cmd = "`"$yt`" --cookies `"$cookies`" --extractor-args `"youtube:player_skip=tv_html5,web_embedded,android`" --extractor-args `"youtube:player_client=web_safari;generate_sapisidhash=1`" -f $formatID -o `"$global:SaveFolder/%(title)s.%(ext)s`" `"$url`""
+    $argList = "--cookies `"$cookies`" --extractor-args `"youtube:player_skip=tv_html5,web_embedded,android`" --extractor-args `"youtube:player_client=web_safari;generate_sapisidhash=1`" -f $formatID -o `"$global:SaveFolder/%(title)s.%(ext)s`" `"$url`""
 
     Write-Log "実行中..."
     $ProgressBar.Value = 40
 
-    $process = Start-Process powershell -ArgumentList "-NoProfile -Command $cmd" -RedirectStandardOutput "$scriptDir\yt_log.txt" -NoNewWindow -PassThru
+    $process = Start-Process -FilePath $yt -ArgumentList $argList -RedirectStandardOutput "$scriptDir\yt_log.txt" -NoNewWindow -PassThru
     $process.WaitForExit()
 
     $ProgressBar.Value = 80
